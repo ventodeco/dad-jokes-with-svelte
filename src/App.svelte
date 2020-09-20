@@ -3,6 +3,7 @@
 	import { getRandomJoke, getSearchJokes } from './requests.js';
 	import { Col, Container, Row, Button } from 'sveltestrap';
 
+	import Transition from './Transition.svelte';
 	import JokeForm from './Form.svelte';
 	import Joke from './Joke.svelte';
 	let randomJoke;
@@ -15,8 +16,9 @@
 	async function onSearch(e) {
 		try {
 			mode = "loading";
+			sleep(500);
 			jokes = await getSearchJokes(e.detail);
-			console.log(jokes);
+			sleep(500);
 			mode = "search";
 		} catch(e) {
 			alert("Lagi error bosq");
@@ -26,13 +28,17 @@
 	async function onRandomJoke() {
 		try {
 			mode = "loading";
+			sleep(500);
 			randomJoke = await getRandomJoke();
+			sleep(500);
 			mode = "random";
 		} catch(e) {
 			alert("Lagi error bosq");
 			return '';
 		}
 	}
+
+	const sleep = (delayMS) => new Promise(res => setTimeout(res, delayMS))
 
 </script>
 
@@ -61,28 +67,36 @@
 		</Col>
 	</Row>
 	{#if mode === "random"}
-		<Row>
-			<Col>
-				<Joke joke="{randomJoke}" />
-			</Col>
-		</Row>
+		<Transition>
+			<Row>
+				<Col>
+					<Joke joke="{randomJoke}" />
+				</Col>
+			</Row>
+		</Transition>
 	{/if}
 
 	{#if mode === "search" && jokes.length > 0}
+		
 		{#each jokes as jokeObj (jokeObj.id)}
-			<Row>
-				<Col>
-					<Joke joke="{jokeObj.joke}" />
-				</Col>
-			</Row>
+			<Transition>
+				<Row>
+					<Col>
+						<Joke joke="{jokeObj.joke}" />
+					</Col>
+				</Row>
+			</Transition>
 		{/each}
+		
 	{/if}
 
 	{#if mode === "search" && jokes.length == 0}
-		<Row>
-			<Col>
-				<Joke joke="Jokes on you!!! :))) Please try another search" />
-			</Col>
-		</Row>
+		<Transition>
+			<Row>
+				<Col>
+					<Joke joke="Jokes on you!!! :))) Please try another search" />
+				</Col>
+			</Row>
+		</Transition>
 	{/if}
 </Container>
